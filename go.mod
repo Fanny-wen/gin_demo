@@ -3,7 +3,9 @@ module gin_demo
 go 1.16
 
 require (
+	github.com/BurntSushi/toml v0.4.1 // indirect
 	github.com/gin-gonic/gin v1.7.4
+	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/sirupsen/logrus v1.8.1
-	golang.org/x/sys v0.0.0-20211109184856-51b60fd695b3 // indirect
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )
