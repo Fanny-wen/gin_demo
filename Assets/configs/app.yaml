@@ -1,0 +1,5 @@
+app:
+  desc: Gin框架学习实践
+  version: v1.0.0
+  addr: 0.0.0.0:8000
+  env: dev

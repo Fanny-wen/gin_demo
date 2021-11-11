@@ -2,7 +2,7 @@ package Middlewares
 
 import (
 	"fmt"
-	"gin_demo/Services"
+	mylogrus "gin_demo/Services/logrus"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -11,17 +11,17 @@ import (
 func LogMiddlewareDemo() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		// Warning级别日志
-		Services.GinLogInstance.WithFields(logrus.Fields{
+		mylogrus.GinLogInstance.WithFields(logrus.Fields{
 			"Method": context.Request.Method,
 		}).Warning("Warning级别日志")
 
 		// Error级别日志
-		Services.GinLogInstance.WithFields(logrus.Fields{
+		mylogrus.GinLogInstance.WithFields(logrus.Fields{
 			"param-name": context.DefaultQuery("name", ""),
 		}).Error("Error级别日志")
 
 		// info级别日志
-		Services.GinLogInstance.WithFields(logrus.Fields{
+		mylogrus.GinLogInstance.WithFields(logrus.Fields{
 			"code":   context.Writer.Status(),
 			"url":    context.Request.URL.Path,
 			"method": context.Request.Method,
@@ -50,7 +50,7 @@ func LogMiddleware() gin.HandlerFunc {
 		// 请求IP
 		clientIP := c.ClientIP()
 		//日志格式
-		Services.GinLogInstance.WithFields(logrus.Fields{
+		mylogrus.GinLogInstance.WithFields(logrus.Fields{
 			"http_status": statusCode,
 			"total_time":  latencyTime,
 			"ip":          clientIP,
