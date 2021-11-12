@@ -1,0 +1,17 @@
+app:
+  desc: Gin框架学习实践
+  version: v1.0.0
+  addr: 0.0.0.0:8000
+  env: dev
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  user: root
+  password: mjsbqsn741
+  dbName: golang_local
+  charset: utf8mb4
+  parseTime: true
+  loc: Local
+redis:
+  host: 127.0.0.1
+  port: 6379

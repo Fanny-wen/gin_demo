@@ -1,13 +1,13 @@
-package Router
+package router
 
 import (
-	"fmt"
-	"gin_demo/Apps/Notfindpage"
-	"gin_demo/Apps/Redirect"
-	"gin_demo/Apps/Student"
-	"gin_demo/Apps/Upload"
 	"gin_demo/Middlewares"
-	"gin_demo/Services/viper"
+	"gin_demo/api/Notfindpage"
+	"gin_demo/api/Redirect"
+	"gin_demo/api/Student"
+	"gin_demo/api/Upload"
+	"gin_demo/api/User"
+	"gin_demo/initialize"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
@@ -18,16 +18,15 @@ import (
 //var Engine = gin.Default()
 var Engine = gin.New()
 
-func init() {
+func InitRouter() {
 	gin.ForceConsoleColor()
-	f, err := os.OpenFile("./Assets/logs/gin.log", os.O_WRONLY|os.O_APPEND|os.O_APPEND, 0777)
+	f, err := os.OpenFile("./logs/gin.log", os.O_WRONLY|os.O_APPEND|os.O_APPEND, 0777)
 	if err != nil {
-		panic("./Assets/logs/gin.log not find")
+		panic("./logs/gin.log not find")
 	}
-	fmt.Printf("%+v\n", f.Name())
-	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+	gin.DefaultWriter = io.MultiWriter(f)
 
-	Engine.LoadHTMLGlob("./Assets/static/*")
+	Engine.LoadHTMLGlob("./static/*")
 	Engine.MaxMultipartMemory = 8 << 20 // 8 MiB
 	Engine.Use(gin.Recovery())
 	Engine.Use(Middlewares.LogMiddleware())
@@ -45,8 +44,8 @@ func init() {
 			"data": map[string]interface{}{
 				"message": "success",
 				"code":    http.StatusOK,
-				"data":    viper.ServerConfig,
-				"time": time.Now().Format("2006-01-02 15:04:05"),
+				"config":  initialize.GC,
+				"time":    time.Now().Format("2006-01-02 15:04:05"),
 			},
 		})
 	})
@@ -68,5 +67,13 @@ func init() {
 		student.POST("/create", Student.CreateStudentHandler)
 		student.DELETE("/delete/:id", Student.DeleteStudentHandler)
 		student.PUT("/update/:id", Student.UpdateStudentHandler)
+	}
+	user := Engine.Group("user")
+	{
+		user.GET("/detail/:id", User.DetailUserHandler)
+		user.GET("/list", User.ListUserHandler)
+		user.POST("/create", User.CreateUserHandler)
+		user.DELETE("/delete/:id", User.DeleteUserHandler)
+		user.PUT("/update/:id", User.UpdateUserHandler)
 	}
 }

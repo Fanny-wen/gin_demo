@@ -1,4 +1,4 @@
-package logrus
+package initialize
 
 import (
 	"fmt"
@@ -11,16 +11,13 @@ import (
 )
 
 var (
-	GinLogPath = "./Assets/logs"
+	GinLogPath = "D:/GoProject/src/github.com/Fanny-wen/gin_demo/logs"
 	GinLogFile = "gin.log"
 )
+
 var GinLogInstance *logrus.Logger
 
-func init() {
-	GinLogInstance = InitLog(GinLogPath, GinLogFile)
-}
-
-func InitLog(logPath, logFile string) *logrus.Logger {
+func InitLog(logPath, logFile string) {
 	var LogInstance = logrus.New()
 	logFileName := filepath.Join(logPath, logFile)
 
@@ -48,7 +45,9 @@ func InitLog(logPath, logFile string) *logrus.Logger {
 	//LogInstance.SetFormatter(&logrus.TextFormatter{TimestampFormat: "2006-01-02 15:04:05"})
 	// 设置日志记录级别
 	LogInstance.SetLevel(logrus.DebugLevel)
-	return LogInstance
+	// 将调用的函数名添加为字段
+	//LogInstance.SetReportCaller(true)
+	GinLogInstance = LogInstance
 }
 
 // 日志滚动设置
