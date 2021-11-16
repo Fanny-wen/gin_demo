@@ -15,10 +15,8 @@ import (
 	"time"
 )
 
-//var Engine = gin.Default()
-var Engine = gin.New()
-
-func InitRouter() {
+func NewRouter() *gin.Engine {
+	var Engine = gin.New()
 	gin.ForceConsoleColor()
 	f, err := os.OpenFile("./logs/gin.log", os.O_WRONLY|os.O_APPEND|os.O_APPEND, 0777)
 	if err != nil {
@@ -70,10 +68,18 @@ func InitRouter() {
 	}
 	user := Engine.Group("user")
 	{
-		user.GET("/detail/:id", User.DetailUserHandler)
+		user.GET("/:id", User.DetailUserHandler)
 		user.GET("/list", User.ListUserHandler)
 		user.POST("/create", User.CreateUserHandler)
-		user.DELETE("/delete/:id", User.DeleteUserHandler)
-		user.PUT("/update/:id", User.UpdateUserHandler)
+		user.DELETE("/:id", User.DeleteUserHandler)
+		user.PUT("/:id", User.UpdateUserHandler)
 	}
+	admin := Engine.Group("admin")
+	{
+		admin.GET("/:id", User.DetailAdminUserHandler)
+		admin.GET("/list", User.ListAdminUserHandler)
+		admin.DELETE("/:id", User.DeleteAdminUserHandler)
+		admin.PUT("/:id", User.UpdateUserHandler)
+	}
+	return Engine
 }

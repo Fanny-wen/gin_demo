@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-const GlobalConfigFile = "D:/GoProject/src/github.com/Fanny-wen/gin_demo/config.yaml" // 配置文件
+// GlobalConfigFile 配置文件
+const GlobalConfigFile = "D:/GoProject/src/github.com/Fanny-wen/gin_demo/config.yaml"
 
 // GC 全局配置
 var GC = GlobalConfig{}
@@ -20,25 +21,26 @@ type GlobalConfig struct {
 	Redis Redis `yaml:"redis"`
 }
 
-// Redis
+// Redis redis配置信息
 type Redis struct {
 	Host string `yaml:"host"`
-	Port string `yaml:"port"`
+	Port int    `yaml:"port"`
 }
 
-// 应用信息
+// App 应用信息
 type App struct {
 	Desc       string `yaml:"desc"`
 	Addr       string `yaml:"addr"`
+	Port       int    `yaml:"port"`
 	ConfigFile string `yaml:"configFile"`
 	Version    string `yaml:"version"`
 	Env        string `yaml:"env"`
 }
 
-// MySQL信息
+// Mysql mysql数据库配置信息
 type Mysql struct {
 	Host      string `yaml:"host"`
-	Port      int `yaml:"port"`
+	Port      int    `yaml:"port"`
 	User      string `yaml:"user"`
 	Password  string `yaml:"password"`
 	DbName    string `yaml:"dbname"`

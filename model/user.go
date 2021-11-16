@@ -1,13 +1,32 @@
 package model
 
 import (
-	"time"
+	"database/sql"
+	"gorm.io/gorm"
 )
 
 type User struct {
-	Id   int    `gorm:"primary_key" json:"id"` //表字段名为：id,主键
-	Name string `gorm:"not null" json:"name"`  //模型标签 name字段不能为空
-	Age  int    `json:"age"`                   //年龄age字段
-	//对应表中的create_time字段并且不为空
-	CreateTime time.Time `gorm:"column:create_time" json:"create_time"`
+	gorm.Model
+	Name    string       `gorm:"not null;size:20"` //模型标签 name字段不能为空
+	Age     *int         `gorm:"not null"`         //年龄age字段
+	IsAdmin sql.NullBool `gorm:"default:false"`
+	UUID    string       `gorm:"not null"`
 }
+
+// TableName 设置 `User` 的表名为 `user`
+//func (User) TableName() string {
+//	return "user"
+//}
+
+type AdminUser struct {
+	gorm.Model
+	Name    string       `gorm:"not null;size20"` //模型标签 name字段不能为空
+	Age     *int         `gorm:"not null"`        //年龄age字段
+	IsAdmin sql.NullBool `gorm:"default:true"`
+	UUID    string       `gorm:"not null"`
+}
+
+// TableName 设置 `User` 的表名为 `user`
+//func (AdminUser) TableName() string {
+//	return "admin_user"
+//}
