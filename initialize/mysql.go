@@ -32,7 +32,7 @@ func InitMysqlConnect() (DB *gorm.DB, err error) {
 	fmt.Println("连接数据库成功！")
 
 	//自动检查 Product 结构是否变化，变化则进行迁移
-	_ = db.AutoMigrate(&model.User{}, &model.AdminUser{})
+	_ = db.AutoMigrate(&model.User{}, &model.AdminUser{}, &model.CreditCard{})
 
 	return db, nil
 }

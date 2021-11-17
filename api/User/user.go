@@ -5,6 +5,7 @@ import (
 	"gin_demo/initialize"
 	"gin_demo/model"
 	"gin_demo/service"
+	"gin_demo/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -22,6 +23,14 @@ func DetailUserHandler(c *gin.Context) {
 	if err := u.GetUser(id); err != nil {
 		fmt.Println("查询数据错误,err", err.Error())
 		panic("查询数据错误")
+	}
+	{
+		// struct 与 map 之间的转换
+		m := util.Struct2Map(*u, 8)
+		fmt.Printf("%+v\n", m)
+		var u2 service.User
+		_ = util.Map2Struct(m, &u2)
+		fmt.Printf("%+v\n", u2)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -124,18 +133,18 @@ func DeleteUserHandler(c *gin.Context) {
 
 // UpdateUserHandler 更新学生信息
 func UpdateUserHandler(c *gin.Context) {
-	var u = &service.User{}
-	var u2 *service.User
-	if err := c.ShouldBindJSON(&u2); err != nil {
+	var u = make(map[string]interface{})  // 接收数据
+	var u2 = &service.User{} // 原始数据
+	if err := c.ShouldBindJSON(&u); err != nil {
 		c.JSON(500, gin.H{"message": err.Error()})
 		return
 	}
 	id, _ := strconv.Atoi(c.Param("id"))
-	if err := u.GetUser(id); err != nil {
+	if err := u2.GetUser(id); err != nil {
 		fmt.Println("获取数据错误,err", err.Error())
 		panic("获取数据错误")
 	}
-	if err := u.UpdateUser("age", u2.Age); err != nil {
+	if err := u2.UpdateUser(u); err != nil {
 		fmt.Println("修改数据错误,err", err.Error())
 		panic("修改数据错误")
 	}

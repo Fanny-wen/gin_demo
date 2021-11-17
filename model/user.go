@@ -20,10 +20,8 @@ type User struct {
 
 type AdminUser struct {
 	gorm.Model
-	Name    string       `gorm:"not null;size20"` //模型标签 name字段不能为空
-	Age     *int         `gorm:"not null"`        //年龄age字段
-	IsAdmin sql.NullBool `gorm:"default:true"`
-	UUID    string       `gorm:"not null"`
+	User   User `gorm:"ForeignKey:UserId;AssociationForeignKey:ID"`
+	UserId uint
 }
 
 // TableName 设置 `User` 的表名为 `user`

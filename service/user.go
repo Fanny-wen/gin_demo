@@ -23,9 +23,6 @@ type User struct {
 // UserTable 使用动态表名
 func UserTable(user *User) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		if user.IsAdmin == true {
-			return db.Table("admin_users")
-		}
 		return db.Table("users")
 	}
 }
@@ -42,10 +39,64 @@ func UserTable(user *User) func(db *gorm.DB) *gorm.DB {
 	AfterSave
 	提交或回滚事务
 */
-func (user *User) BeforeCreate(db *gorm.DB) (err error) {
+func (user *User) BeforeCreate(db *gorm.DB) error {
 	user.UUID = uuid.New().String()
 	return nil
 }
+func (user *User) AfterCreate(db *gorm.DB) error {
+	if user.IsAdmin == true {
+		if createDb := db.Table("admin_users").Create(&model.AdminUser{
+			UserId: user.Id,
+		}); createDb.Error != nil {
+			return createDb.Error
+		}
+	}
+	return nil
+}
+
+// 查询钩子 AfterFind
+/*
+	从 db 中加载数据
+	Preloading (eager loading)
+	AfterFind
+*/
+
+// 更新钩子, 更新记录时会调用这些方法 BeforeSave, BeforeUpdate, AfterUpdate, AfterSave
+/*
+	开始事务
+	BeforeSave
+	BeforeUpdate
+	// 关联前的 save
+	// 更新 db
+	// 关联后的 save
+	AfterUpdate
+	AfterSave
+	提交或回滚事务
+*/
+
+func (user *User) BeforeUpdate(db *gorm.DB) error {
+	fmt.Println(db.Statement.Changed("IsAdmin"))
+	if ok := db.Statement.Changed("IsAdmin"); ok {
+		if user.IsAdmin == true {
+			fmt.Println("admin_users delete")
+			db.Unscoped().Where("user_id = ?", user.Id).Delete(&model.AdminUser{})
+		} else {
+			fmt.Println("admin_users create")
+			db.Table("admin_users").Create(&model.AdminUser{
+				UserId: user.Id,
+			})
+		}
+	}
+	return nil
+}
+
+/*
+	开始事务
+	BeforeDelete
+	删除 db 中的数据
+	AfterDelete
+	提交或回滚事务
+*/
 
 // InsertUser 插入数据
 func (user *User) InsertUser(data interface{}) (err error) {
@@ -66,12 +117,6 @@ func (user *User) InsertUser(data interface{}) (err error) {
 }
 
 /*
-	从 db 中加载数据
-	Preloading (eager loading)
-	AfterFind
-*/
-
-/*
 	GORM 提供 First, Take, Last 方法，以便从数据库中检索单个对象
 	获取第一条记录（主键升序）
 	db.First(&user)
@@ -80,7 +125,6 @@ func (user *User) InsertUser(data interface{}) (err error) {
 	获取最后一条记录（主键降序）
 	db.Last(&user)
 */
-
 // GetUser 获取一条数据
 func (user *User) GetUser(id int) (err error) {
 	db := initialize.DB.First(user, id)
@@ -103,37 +147,32 @@ func (user *User) GetListUser(condition *map[string]interface{}, users *[]User, 
 }
 
 /*
-	开始事务
-	BeforeSave
-	BeforeUpdate
-	// 关联前的 save
-	// 更新 db
-	// 关联后的 save
-	AfterUpdate
-	AfterSave
-	提交或回滚事务
+	update 更新单个字段
+	updates 更新多个字段, 通过 `struct` 更新多个字段，不会更新零值字段; 通过 `map` 更新多个字段，零值字段也会更新
+	db.Model(&user).Updates(User{Name: "hello", Age: 18, Active: false})
+	db.Model(&user).Updates(map[string]interface{}{"name": "hello", "age": 18, "active": false})
 */
-// UpdateUser 更新一条数据
-func (user *User) UpdateUser(value ...interface{}) (err error) {
-	//Db := initialize.DB.Table("user").Model(user).Update(value...)
-	//err = Db.Error
-	//if err != nil {
-	//	fmt.Println("更新数据错误,err:", err)
-	//	return err
-	//}
+
+// UpdateUser 更新数据
+//func (user *User) UpdateUser(value map[string]interface{}) (err error) {
+//func (user *User) UpdateUser(u *User) (err error) {
+func (user *User) UpdateUser(u map[string]interface{}) (err error) {
+	fmt.Println("===========")
+	fmt.Printf("%+v\n", user)
+	fmt.Printf("%+v\n", u)
+	fmt.Println("===========")
+	Db := initialize.DB.Model(user).Select("name", "age", "is_admin").Updates(u)
+	err = Db.Error
+	if err != nil {
+		fmt.Println("更新数据错误,err:", err)
+		return err
+	}
 	return nil
 }
 
-/*
-	开始事务
-	BeforeDelete
-	删除 db 中的数据
-	AfterDelete
-	提交或回滚事务
-*/
 // DeleteUser 删除一条数据
 func (user *User) DeleteUser() (err error) {
-	Db := initialize.DB.Scopes(UserTable(user)).Delete(user)
+	Db := initialize.DB.Table("users").Delete(user)
 	err = Db.Error
 	if err != nil {
 		fmt.Println("删除数据错误,err:", err)
